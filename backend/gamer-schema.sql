@@ -1,34 +1,49 @@
-CREATE TABLE companies (
-  handle VARCHAR(25) PRIMARY KEY CHECK (handle = lower(handle)),
-  name TEXT UNIQUE NOT NULL,
-  num_employees INTEGER CHECK (num_employees >= 0),
-  description TEXT NOT NULL,
-  logo_url TEXT
+CREATE TABLE Players ( 
+player_id SERIAL PRIMARY KEY, 
+first_name VARCHAR(50) NOT NULL, 
+last_name VARCHAR(50) NOT NULL, 
+email VARCHAR(255) UNIQUE NOT NULL, 
+password VARCHAR(255), 
+age INT, 
+preferred_pronouns VARCHAR(50), 
+zip_code VARCHAR(5), 
+created_at TIMESTAMP DEFAULT 
+CURRENT_TIMESTAMP, last_login TIMESTAMP 
+); 
+
+
+CREATE TABLE DislikedProfiles (
+  player_id INT,
+  disliked_player_id INT,
+  disliked_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (player_id, disliked_player_id),
+  FOREIGN KEY (player_id) REFERENCES Players(player_id),
+  FOREIGN KEY (disliked_player_id) REFERENCES Players(player_id)
 );
 
-CREATE TABLE users (
-  username VARCHAR(25) PRIMARY KEY,
-  password TEXT NOT NULL,
-  first_name TEXT NOT NULL,
-  last_name TEXT NOT NULL,
-  email TEXT NOT NULL
-    CHECK (position('@' IN email) > 1),
-  is_admin BOOLEAN NOT NULL DEFAULT FALSE
+CREATE TABLE GamingPreferences (
+  player_id INT PRIMARY KEY,
+  genre VARCHAR(50),
+  top_games VARCHAR(255),
+  preferred_devices VARCHAR(100),
+  preferred_distance VARCHAR(100),
+  FOREIGN KEY (player_id) REFERENCES Players(player_id)
 );
 
-CREATE TABLE jobs (
-  id SERIAL PRIMARY KEY,
-  title TEXT NOT NULL,
-  salary INTEGER CHECK (salary >= 0),
-  equity NUMERIC CHECK (equity <= 1.0),
-  company_handle VARCHAR(25) NOT NULL
-    REFERENCES companies ON DELETE CASCADE
+CREATE TABLE LikedProfiles (
+  player_id INT,
+  liked_player_id INT,
+  liked_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (player_id, liked_player_id),
+  FOREIGN KEY (player_id) REFERENCES Players(player_id),
+  FOREIGN KEY (liked_player_id) REFERENCES Players(player_id)
 );
 
-CREATE TABLE applications (
-  username VARCHAR(25)
-    REFERENCES users ON DELETE CASCADE,
-  job_id INTEGER
-    REFERENCES jobs ON DELETE CASCADE,
-  PRIMARY KEY (username, job_id)
+CREATE TABLE MatchedProfiles (
+  player_id_1 INT,
+  player_id_2 INT,
+  matched_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (player_id_1, player_id_2),
+  FOREIGN KEY (player_id_1) REFERENCES Players(player_id),
+  FOREIGN KEY (player_id_2) REFERENCES Players(player_id)
 );
