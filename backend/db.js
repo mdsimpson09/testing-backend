@@ -1,23 +1,46 @@
 "use strict";
-/** Database setup for jobly. */
-const { Player } = require("pg");
+/** Database setup for gamer_date. */
+const { Pool } = require("pg");
 const { getDatabaseUri } = require("./config");
 
 let db;
 
 if (process.env.NODE_ENV === "production") {
-  db = new Player({
+  db = new Pool({
     connectionString: getDatabaseUri(),
     ssl: {
-      rejectUnauthorized: false
-    }
+      rejectUnauthorized: false,
+    },
   });
 } else {
-  db = new Player({
-    connectionString: getDatabaseUri()
+  db = new Pool({
+    connectionString: getDatabaseUri(),
   });
 }
 
-db.connect();
-
 module.exports = db;
+
+
+// "use strict";
+// /** Database setup for jobly. */
+// const { Player } = require("pg");
+// const { getDatabaseUri } = require("./config");
+
+// let db;
+
+// if (process.env.NODE_ENV === "production") {
+//   db = new Player({
+//     connectionString: getDatabaseUri(),
+//     ssl: {
+//       rejectUnauthorized: false
+//     }
+//   });
+// } else {
+//   db = new Player({
+//     connectionString: getDatabaseUri()
+//   });
+// }
+
+// db.connect();
+
+// module.exports = db;
