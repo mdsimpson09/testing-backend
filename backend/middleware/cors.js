@@ -1,13 +1,14 @@
+// cors.js
+
 const cors = require('cors');
 
-// Allow requests from any origin/frontend URL
-const FRONTEND_ORIGIN = 'http://localhost:3000';
+const corsOptions = {
+  origin: 'http://localhost:3000',
+  optionsSuccessStatus: 200
+};
 
-router.use(cors({
-  origin: FRONTEND_ORIGIN   
-}));
-
-// Create CORS middleware
+// Construct the actual CORS middleware
 const corsMiddleware = cors(corsOptions);
 
+// Export the middleware itself
 module.exports = corsMiddleware;

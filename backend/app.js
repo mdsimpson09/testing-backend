@@ -4,19 +4,20 @@ require('dotenv').config();
 const corsMiddleware = require('./middleware/cors');
 const jwt = require("jsonwebtoken");
 
-const express = require("express");
+
 const cors = require("cors");
 
 const { NotFoundError, BadRequestError } = require("./expressError");
 
 const morgan = require("morgan");
 
+const express = require("express");
 const app = express();
 
 app.use(corsMiddleware);
 app.use(cors());
 app.use(express.json());
-app.use(morgan("tiny"));
+app.use('/PlayerApi', require('./routes/players'));
 
 // Import the database module
 const db = require('./db');

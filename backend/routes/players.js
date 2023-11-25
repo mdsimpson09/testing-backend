@@ -5,7 +5,7 @@ const router = express.Router();
 const Player = require('../models/player');
 
 // Get all players
-router.get('/', async (req, res, next) => {
+router.get('/players', async (req, res, next) => {
   try {
     const players = await Player.findAll();
     return res.json({ players });
