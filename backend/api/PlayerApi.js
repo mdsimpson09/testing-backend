@@ -47,13 +47,13 @@ class PlayerApi {
 
   /** Get list of players (users) */
   static async getPlayers() {
-    let res = await this.request("PlayerApi/players");
+    let res = await this.request("api/players");
     return res.players;
   }
 
   /** Get player by ID */
   static async getPlayerById(playerId) {
-    let res = await this.request(`PlayerApi/players/${playerId}`);
+    let res = await this.request(`api/players/${playerId}`);
     return res.player;
   }
 

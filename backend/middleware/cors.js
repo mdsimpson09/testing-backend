@@ -1,13 +1,13 @@
-const cors = require("cors");
-const express = require('express');
+const cors = require('cors');
 
-// const corsMiddleware = cors({
-//   origin: "http://localhost:3001/api/playersApi", // Replace with your frontend app's URL
-const corsOptions = {
-    origin: ['http://localhost:3001', 'http://localhost:3002'], 
-    optionsSuccessStatus: 200,
-    methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
-  credentials: true,
-};
+// Allow requests from any origin/frontend URL
+const FRONTEND_ORIGIN = 'http://localhost:3000';
+
+router.use(cors({
+  origin: FRONTEND_ORIGIN   
+}));
+
+// Create CORS middleware
+const corsMiddleware = cors(corsOptions);
 
 module.exports = corsMiddleware;
