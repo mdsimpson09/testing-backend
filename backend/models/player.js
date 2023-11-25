@@ -1,38 +1,51 @@
-// models/player.js
-
 const db = require('../db');
 
 class Player {
-
   static async getAll() {
-    const result = await db.query(
-      `SELECT id, first_name, last_name, email 
-        FROM players`
-    );  
-    return result.rows;
+    try {
+      const result = await db.query(
+        `SELECT player_id, first_name, last_name, username, email, photo 
+          FROM players`
+      );
+      return result.rows;
+    } catch (error) {
+      // Handle the error, log it, and potentially throw a custom error
+      console.error('Error in Player.getAll:', error.message);
+      throw new Error('Error fetching player data');
+    }
   }
 
-  static async getById(id) {
-    const result = await db.query(
-      `SELECT id, first_name, last_name, email 
-        FROM players 
-        WHERE id = $1`, [id]  
-    );
+  static async get(id) {
+    try {
+      const result = await db.query(
+        `SELECT player_id, first_name, last_name, username, email, photo 
+          FROM players 
+          WHERE player_id = $1`,
+        [id]
+      );
 
-    return result.rows[0]; 
+      return result.rows[0];
+    } catch (error) {
+      console.error('Error in Player.get:', error.message);
+      throw new Error('Error fetching player by ID');
+    }
   }
 
   static async create(data) {
-    const result = await db.query(
-      `INSERT INTO players (first_name, last_name, email)
-        VALUES ($1, $2, $3)
-        RETURNING id, first_name, last_name, email`,
-      [data.first_name, data.last_name, data.email]
-    );
-    return result.rows[0];
-  }
+    try {
+      const result = await db.query(
+        `INSERT INTO players (first_name, last_name, username, email, photo)
+          VALUES ($1, $2, $3, $4, $5)
+          RETURNING player_id, first_name, last_name, username, email, photo`,
+        [data.first_name, data.last_name, data.email, data.username, data.photo]
+      );
 
-  // other CRUD methods
+      return result.rows[0];
+    } catch (error) {
+      console.error('Error in Player.create:', error.message);
+      throw new Error('Error creating player');
+    }
+  }
 }
 
-module.exports = { Player };
+module.exports = Player;

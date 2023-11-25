@@ -2,22 +2,24 @@
 
 const express = require('express');
 const router = express.Router();
-const Player = require('../models/player');
+const Player = require("../models/Player");
+
 
 // Get all players
-router.get('/players', async (req, res, next) => {
-  try {
-    const players = await Player.findAll();
-    return res.json({ players });
-  } catch (err) {
-    return next(err); 
-  }
-});
+router.get('/', async (req, res, next) => {
+    try {
+      const players = await Player.getAll(); 
+      res.json({players});
+    } catch (err) {
+      next(err);
+    }
+  });
 
 // Get player by ID
 router.get('/:id', async (req, res, next) => {
   try {
-    const player = await Player.get(req.params.id);
+    console.log('player_id:', req.params.id);
+    const player = await player.get(req.params.id);
     return res.json({ player });
   } catch (err) {
     return next(err);
