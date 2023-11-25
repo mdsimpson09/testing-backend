@@ -7,6 +7,7 @@ password VARCHAR(255),
 age INT, 
 preferred_pronouns VARCHAR(50), 
 zip_code VARCHAR(5), 
+photo VARCHAR(500) NOT NULL,
 created_at TIMESTAMP DEFAULT 
 CURRENT_TIMESTAMP, last_login TIMESTAMP 
 ); 
@@ -26,7 +27,6 @@ CREATE TABLE GamingPreferences (
   genre VARCHAR(50),
   top_games VARCHAR(255),
   preferred_devices VARCHAR(100),
-  preferred_distance VARCHAR(100),
   FOREIGN KEY (player_id) REFERENCES Players(player_id)
 );
 
