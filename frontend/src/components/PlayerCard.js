@@ -1,8 +1,9 @@
-import React from 'react'
-import './PlayerCard.css'
-import TinderCard from 'react-tinder-card'
+
+import React, { useState, useEffect } from 'react';
+import './PlayerCard.css';
+import TinderCard from 'react-tinder-card';
 import { Link } from 'react-router-dom';
-import { useState, useEffect } from 'react';
+import PlayerApi from '../api/PlayerApi'; // Update the path based on your project structure
 
 function PlayerCard() {
   const [cards, setCards] = useState([]);
@@ -11,9 +12,8 @@ function PlayerCard() {
     // Fetch player data from the backend when the component mounts
     const fetchData = async () => {
       try {
-        const response = await fetch('/api/players'); // Replace with your API endpoint
-        const data = await response.json();
-        setCards(data.players);
+        const players = await PlayerApi.getPlayers();
+        setCards(players);
       } catch (error) {
         console.error('Error fetching player data:', error);
       }

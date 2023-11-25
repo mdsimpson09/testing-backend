@@ -15,6 +15,7 @@ const seedData = async () => {
       {
         first_name: 'John',
         last_name: 'Doe',
+        username: 'johndoe',
         email: 'john.doe@example.com',
         password: await bcrypt.hash('password123', saltRounds),
         age: 25,
@@ -25,6 +26,7 @@ const seedData = async () => {
       {
         first_name: 'Jane',
         last_name: 'Smith',
+        username: 'janesmith',
         email: 'jane.smith@example.com',
         password: await bcrypt.hash('password456', saltRounds),
         age: 28,
@@ -35,6 +37,7 @@ const seedData = async () => {
       {
         first_name: 'Alice',
         last_name: 'Johnson',
+        username: 'alicejohnson',
         email: 'alice.johnson@example.com',
         password: await bcrypt.hash('password789', saltRounds),
         age: 22,
@@ -45,6 +48,7 @@ const seedData = async () => {
       {
         first_name: 'Bob',
         last_name: 'Brown',
+        username: 'bobbrown',
         email: 'bob.brown@example.com',
         password: await bcrypt.hash('passwordABC', saltRounds),
         age: 30,
@@ -55,6 +59,7 @@ const seedData = async () => {
       {
         first_name: 'Eve',
         last_name: 'Williams',
+        username: 'evewilliams',
         email: 'eve.williams@example.com',
         password: await bcrypt.hash('passwordXYZ', saltRounds),
         age: 26,
@@ -65,6 +70,7 @@ const seedData = async () => {
       {
         first_name: 'Charlie',
         last_name: 'Davis',
+        username: 'charliedavis',
         email: 'charlie.davis@example.com',
         password: await bcrypt.hash('password321', saltRounds),
         age: 32,
@@ -75,12 +81,13 @@ const seedData = async () => {
     ];
 
     // Insert players into the Players table
-    for (const player of players) {
-      const { rows } = await pool.query(
-        'INSERT INTO Players (first_name, last_name, email, password, age, preferred_pronouns, zip_code, photo) VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING player_id',
+    const playerInserts = players.map((player) => {
+      return pool.query(
+        'INSERT INTO Players (first_name, last_name, username, email, password, age, preferred_pronouns, zip_code, photo) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9) RETURNING player_id',
         [
           player.first_name,
           player.last_name,
+          player.username,
           player.email,
           player.password,
           player.age,
@@ -89,137 +96,30 @@ const seedData = async () => {
           player.photo,
         ]
       );
+    });
 
-      const playerId = rows[0].player_id;
+    const playerResults = await Promise.all(playerInserts);
 
-      // Insert gaming preferences
-      await pool.query(
-        'INSERT INTO GamingPreferences (player_id, genre, top_games, preferred_devices) VALUES ($1, $2, $3, $4)',
-        [playerId, 'Action', ['Game1', 'Game2', 'Game3'], 'PC']
-      );
-    }
+    // Extract player IDs for later use
+    const playerIds = playerResults.map((result) => result.rows[0].player_id);
 
-// const { Pool } = require('pg');
-// const bcrypt = require('bcrypt');
-// const saltRounds = 12;
+    // Insert LikedProfiles
+    const likedProfilesInserts = [
+      pool.query('INSERT INTO LikedProfiles (player_id, liked_player_id) VALUES ($1, $2)', [playerIds[0], playerIds[1]]),
+      pool.query('INSERT INTO LikedProfiles (player_id, liked_player_id) VALUES ($1, $2)', [playerIds[1], playerIds[0]]),
+      pool.query('INSERT INTO LikedProfiles (player_id, liked_player_id) VALUES ($1, $2)', [playerIds[4], playerIds[5]]),
+    ];
 
-// const { getDatabaseUri } = require('./config');
+    await Promise.all(likedProfilesInserts);
 
-// const pool = new Pool({
-//   connectionString: getDatabaseUri(),
-// });
+    // Insert DislikedProfiles
+    const dislikedProfilesInserts = [
+      pool.query('INSERT INTO DislikedProfiles (player_id, disliked_player_id) VALUES ($1, $2)', [playerIds[2], playerIds[0]]),
+      pool.query('INSERT INTO DislikedProfiles (player_id, disliked_player_id) VALUES ($1, $2)', [playerIds[2], playerIds[1]]),
+      pool.query('INSERT INTO DislikedProfiles (player_id, disliked_player_id) VALUES ($1, $2)', [playerIds[4], playerIds[3]]),
+    ];
 
-// const seedData = async () => {
-//   try {
-//     // Insert six players
-//     const players = [
-//       {
-//         first_name: 'John',
-//         last_name: 'Doe',
-//         email: 'john.doe@example.com',
-//         password: await bcrypt.hash('password123', saltRounds),
-//         age: 25,
-//         preferred_pronouns: 'he/him',
-//         zip_code: '12345',
-//       },
-//       {
-//         first_name: 'Jane',
-//         last_name: 'Smith',
-//         email: 'jane.smith@example.com',
-//         password: await bcrypt.hash('password456', saltRounds),
-//         age: 28,
-//         preferred_pronouns: 'she/her',
-//         zip_code: '54321',
-//       },
-//       {
-//         first_name: 'Alice',
-//         last_name: 'Johnson',
-//         email: 'alice.johnson@example.com',
-//         password: await bcrypt.hash('password789', saltRounds),
-//         age: 22,
-//         preferred_pronouns: 'she/her',
-//         zip_code: '67890',
-//       },
-//       {
-//         first_name: 'Bob',
-//         last_name: 'Brown',
-//         email: 'bob.brown@example.com',
-//         password: await bcrypt.hash('passwordABC', saltRounds),
-//         age: 30,
-//         preferred_pronouns: 'he/him',
-//         zip_code: '98765',
-//       },
-//       {
-//         first_name: 'Eve',
-//         last_name: 'Williams',
-//         email: 'eve.williams@example.com',
-//         password: await bcrypt.hash('passwordXYZ', saltRounds),
-//         age: 26,
-//         preferred_pronouns: 'they/them',
-//         zip_code: '13579',
-//       },
-//       {
-//         first_name: 'Charlie',
-//         last_name: 'Davis',
-//         email: 'charlie.davis@example.com',
-//         password: await bcrypt.hash('password321', saltRounds),
-//         age: 32,
-//         preferred_pronouns: 'he/him',
-//         zip_code: '24680',
-//       },
-//     ];
-
-//     // Insert players into the Players table
-//     for (const player of players) {
-//       const { rows } = await pool.query(
-//         'INSERT INTO Players (first_name, last_name, email, password, age, preferred_pronouns, zip_code) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING player_id',
-//         [
-//           player.first_name,
-//           player.last_name,
-//           player.email,
-//           player.password,
-//           player.age,
-//           player.preferred_pronouns,
-//           player.zip_code,
-//         ]
-//       );
-
-//       const playerId = rows[0].player_id;
-
-//       // Insert gaming preferences
-//       await pool.query(
-//         'INSERT INTO GamingPreferences (player_id, genre, top_games, preferred_devices) VALUES ($1, $2, $3, $4)',
-//         [playerId, 'Action', ['Game1', 'Game2', 'Game3'], 'PC']
-//       );
-//     }
-
-    // Create liked profiles and matches
-    const [john, jane, alice, bob, eve, charlie] = await Promise.all([
-      pool.query('SELECT player_id FROM Players WHERE email = $1', ['john.doe@example.com']),
-      pool.query('SELECT player_id FROM Players WHERE email = $1', ['jane.smith@example.com']),
-      pool.query('SELECT player_id FROM Players WHERE email = $1', ['alice.johnson@example.com']),
-      pool.query('SELECT player_id FROM Players WHERE email = $1', ['bob.brown@example.com']),
-      pool.query('SELECT player_id FROM Players WHERE email = $1', ['eve.williams@example.com']),
-      pool.query('SELECT player_id FROM Players WHERE email = $1', ['charlie.davis@example.com']),
-    ]);
-
-    await Promise.all([
-      pool.query('INSERT INTO LikedProfiles (player_id, liked_player_id) VALUES ($1, $2)', [john.rows[0].player_id, jane.rows[0].player_id]),
-      pool.query('INSERT INTO LikedProfiles (player_id, liked_player_id) VALUES ($1, $2)', [jane.rows[0].player_id, john.rows[0].player_id]),
-      pool.query('INSERT INTO LikedProfiles (player_id, liked_player_id) VALUES ($1, $2)', [eve.rows[0].player_id, charlie.rows[0].player_id]),
-    ]);
-
-    // Create dislikes
-    const [aliceSelect, bobSelect] = await Promise.all([
-      pool.query('SELECT player_id FROM Players WHERE email = $1', ['alice.johnson@example.com']),
-      pool.query('SELECT player_id FROM Players WHERE email = $1', ['bob.brown@example.com']),
-    ]);
-
-    await Promise.all([
-      pool.query('INSERT INTO DislikedProfiles (player_id, disliked_player_id) VALUES ($1, $2)', [aliceSelect.rows[0].player_id, john.rows[0].player_id]),
-      pool.query('INSERT INTO DislikedProfiles (player_id, disliked_player_id) VALUES ($1, $2)', [aliceSelect.rows[0].player_id, jane.rows[0].player_id]),
-      pool.query('INSERT INTO DislikedProfiles (player_id, disliked_player_id) VALUES ($1, $2)', [eve.rows[0].player_id, bob.rows[0].player_id]),
-    ]);
+    await Promise.all(dislikedProfilesInserts);
 
     // Check for mutual likes and create matches
     const likedProfiles = await pool.query('SELECT * FROM LikedProfiles');
@@ -231,13 +131,15 @@ const seedData = async () => {
     });
 
     // Insert matched profiles into the "matchedprofiles" table
-    for (const match of matchedProfiles) {
-      await pool.query('INSERT INTO MatchedProfiles (player_id_1, player_id_2, matched_at) VALUES ($1, $2, $3)', [
+    const matchedProfilesInserts = matchedProfiles.map((match) => {
+      return pool.query('INSERT INTO MatchedProfiles (player_id_1, player_id_2, matched_at) VALUES ($1, $2, $3)', [
         match.player_id,
         match.liked_player_id,
         new Date(),
       ]);
-    }
+    });
+
+    await Promise.all(matchedProfilesInserts);
 
     console.log('Seed data inserted successfully.');
   } catch (error) {
@@ -248,7 +150,6 @@ const seedData = async () => {
 };
 
 seedData();
-
 
 // const seedData = async () => {
 //   try {
